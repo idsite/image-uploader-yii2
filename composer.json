@@ -1,0 +1,21 @@
+{
+    "name": "idsite/yii2-images",
+    "description": "описание",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension.image","images"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Алексей Державин",
+            "email": "rx6@mail.ru"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "idsite\\images\\": ""
+        }
+    }
+}
