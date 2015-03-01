@@ -27,5 +27,34 @@ Usage
 
 Once the extension is installed, simply use it in your code by  :
 
-```php
-<?= \idsite\images\AutoloadExample::widget(); ?>```
+```sql
+-- таблица для сохранения изображений
+
+-- DROP TABLE images;
+
+CREATE TABLE images
+(
+  id character varying(32) NOT NULL,
+  entity smallint,
+  entity_id integer,
+  ext character varying(4),
+  type smallint,
+  body bytea,
+  CONSTRAINT pk_images PRIMARY KEY (id)
+);
+
+CREATE INDEX idx_images_entity
+  ON images
+  USING btree
+  (entity, entity_id);
+```
+
+
+в .htaccess файл
+
+```
+#icache
+RewriteCond %{REQUEST_URI} ^/images-cache/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule .* icache.php?uri=%{REQUEST_URI} [L]
+```
