@@ -4,8 +4,10 @@
 
     function getItemById(options, id)
     {
-        var itemHtml;
-        itemHtml = options.itemTemplate.replace('{id}', id).replace('{imageurl}', options.fnGetUrlImages(id));
+        var itemHtml, img;
+
+
+        itemHtml = options.itemTemplate.replace('{id}', id).replace('{img}', options.fnGetUrlImages(id));
         itemHtml = $(itemHtml);
         itemHtml.data('id', id).addClass('images-item');
         return itemHtml;
@@ -75,6 +77,7 @@
         // Устанавливаем заголовки
         xhr.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + boundary);
         xhr.setRequestHeader("Cache-Control", "no-cache");
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         // Формируем тело запроса
         var body = "--" + boundary + "\r\n";
         body += "Content-Disposition: form-data; name='file'; filename='file'\r\n";
@@ -95,17 +98,20 @@
     {
         item.replaceWith(getItemById(data.options, id).data('new', true));
         data.imagesAdd.push(id);
+        addInput(data, id, 'add');
     }
 
 
     function startLoad()
     {
-        var data = this.data('imagesLoader');
+        var $this = this;
+        var data = $this.data('imagesLoader');
         var options = data.options;
 
         var items = data.containImages.find('.images-item-expected');
         if (items.length)
         {
+
             var countLoad = data.containImages.find('.images-item-loading').length;
 
             if (countLoad < options.uploadCount)
@@ -119,9 +125,9 @@
                 while (i < items.length && (i + countLoad < options.uploadCount))
                 {
                     var reader2 = new FileReader();
+                    reader2.i = i;
                     reader2.onload = function () {
-
-                        uploadFile(reader2, items.eq(i).data('file'), options.url, items.eq(i), this);
+                        uploadFile(reader2, items.eq(this.i).data('file'), options.url, items.eq(this.i), $this);
                     };
                     reader2.readAsBinaryString(items.eq(i).data('file'));
                     i++;
@@ -140,17 +146,17 @@
         }
     }
 
-    
 
-    function addInput(containInput, id, type)
+
+    function addInput(data, id, type)
     {
         if (type === 'add')
         {
-            containInput.append('<input type="hidden" value="' + (_prefixAdd + id) + '" class="images-input-add" >');
+            data.containInput.append('<input type="hidden" value="' + (_prefixAdd + id) + '" name="'+data.options.name+'[]" class="images-input-add" >');
 
         } else
         {
-            containInput.append('<input type="hidden" value="' + (_prefixDelete + id) + '" class="images-input-delete" >');
+            data.containInput.append('<input type="hidden" value="' + (_prefixDelete + id) + '" name="'+data.options.name+'[]" class="images-input-delete" >');
         }
     }
 
@@ -159,12 +165,13 @@
 
             options = $.extend({
                 url: '',
+                name: 'images',
                 images: [],
                 maxCount: null,
                 fnGetUrlImages: function (id) {
                     return '/images-cache/' + id;
                 },
-                itemTemplate: '<div class="images-item" ><img src="{imageurl}"><a href="#" class="images-item-delete"></a></div>',
+                itemTemplate: '<div class="images-item" >{img}<a href="#" class="images-item-delete"></a></div>',
                 maxSizeFile: 52428800, //50 мб
                 uploadCount: 1 //одновременных загрузок
 
@@ -187,6 +194,17 @@
                     }
 
                     var i, imagesDelete = [], imagesOld = [], imagesAdd = [];
+
+
+                    data = {
+                        target: $this,
+                        options: options,
+                        imagesDelete: imagesDelete,
+                        imagesAdd: imagesAdd,
+                        imagesOld: imagesOld,
+                        containInput: containInput,
+                        containImages: containImages
+                    };
 
                     for (i = 0; i < options.images.length; i++)
                     {
@@ -211,12 +229,12 @@
                     for (i = 0; i < imagesAdd.length; i++)
                     {
                         containImages.append(getItemById(options, imagesAdd[i]).data('new', true));
-                        addInput(containInput, imagesAdd[i], 'add');
+                        addInput(data, imagesAdd[i], 'add');
                     }
 
                     for (i = 0; i < imagesDelete.length; i++)
                     {
-                        addInput(containInput, imagesDelete[i], 'delete');
+                        addInput(data, imagesDelete[i], 'delete');
                     }
 
                     containImages.on('click', '.images-item-delete', function () {
@@ -226,7 +244,7 @@
                     });
 
                     $this.find('.images-input-file').change(function () {
-                        var errors, imagesLoad = [];
+                        var errors = [], imagesLoad = [];
 
                         if (options.maxCount && $this.imagesLoader('getCount') + this.files.length > parseInt(options.maxCount))
                         {
@@ -273,15 +291,7 @@
 
                     });
 
-                    $this.data('imagesLoader', {
-                        target: $this,
-                        options: options,
-                        imagesDelete: imagesDelete,
-                        imagesAdd: imagesAdd,
-                        imagesOld: imagesOld,
-                        containInput: containInput,
-                        containImages: containImages
-                    });
+                    $this.data('imagesLoader', data);
                 }
             });
         },
@@ -304,13 +314,21 @@
 
             if ((i = $.inArray(id, data.imagesOld)) !== -1)
             {
-                addInput(data.containInput, id, 'delete');
+                addInput(data, id, 'delete');
                 data.imagesDelete.push(id);
                 data.imagesOld.splice(i, 1);
             } else
             if ((i = $.inArray(id, data.imagesAdd)) !== -1)
             {
                 data.imagesAdd.splice(i, 1);
+                var _val = _prefixAdd + id;
+                data.containInput.find('input').each(function () {
+                    if ($(this).attr('value') === _val)
+                    {
+                        $(this).remove();
+                        return false;
+                    }
+                });
             }
 
             if (item)

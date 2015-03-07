@@ -24,8 +24,8 @@ to the require section of your `composer.json` file.
 
 Usage
 -----
+Модель изображений должна наследоваться от ImagesModel
 
-Once the extension is installed, simply use it in your code by  :
 
 ```sql
 -- таблица для сохранения изображений
@@ -50,11 +50,70 @@ CREATE INDEX idx_images_entity
 ```
 
 
+Конфигурация
+
+```php
+
+'components' => [
+        'images' => [
+            'class' => 'idsite\images\Component',
+            'imagesModelClass' => '\app\models\Images',
+            'sizeOptions' => ['50x50']
+        ],
+]
+
+...
+
+'controllerMap' => [
+        'icache' =>'idsite\images\ImageCacheController',
+    ],
+```
+
+
+в моделе
+```php
+ public function behaviors() {
+        return [
+            'images' => [
+                'class' => \idsite\images\UploadImagesBehavior::className(),
+                'maxCount' => 30,
+                'entity'=>  Images::ENTITY_SEARCH,
+        ]];
+    }
+```
+
+
+подключаем действие
+
+```php
+    public function actions() {
+        return [
+            'load-images'=>[
+                'class'=>  '\idsite\images\ActionLoad',
+            ]
+          
+        ];
+    }
+```
+
+виджет
+```php
+ echo \idsite\images\Loader::widget([
+                'model'=>$model,
+                'attribute'=>'images',
+                'url'=>  Url::to(['site/load-images']),
+                'size'=>'50x50',
+                    ]);
+```
+
+
+
+
 в .htaccess файл
 
 ```
 #icache
 RewriteCond %{REQUEST_URI} ^/images-cache/
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule .* icache.php?uri=%{REQUEST_URI} [L]
+RewriteRule .* icache/index?url=%{REQUEST_URI} [L]
 ```

@@ -22,5 +22,5 @@ use yii\helpers\Html;
 
     </div>
 
-    <input type="file" name="" class="images-input-file" >
+    <input type="file" name="" class="images-input-file" multiple >
 </div>

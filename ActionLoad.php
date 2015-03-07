@@ -8,35 +8,31 @@ use \yii\helpers\FileHelper;
 class ActionLoad extends \yii\base\Action {
 
     /**
-     * битовая маска типов файлов из констант GB
-     * @var int
+     * компонент images
+     * @var string|Component
      */
-    public $imagesTypes = IMG_JPG | IMG_PNG | IMG_GIF;
-    public $imagesModelClass;
+    public $images = 'images';
+
 
     public function init() {
-        if ($this->imagesModelClass === null) {
-            throw new nvalidConfigException('imagesModelClass no set');
-        }
-
-        if ($this->imagesTypes === null) {
-            throw new nvalidConfigException('imagesTypes no set');
-        }
+        $this->images = \yii\di\Instance::ensure($this->images, Component::className());
     }
 
     public function run() {
         $file = UploadedFile::getInstanceByName('file');
         if ($file) {
             $runtime = \Yii::$app->getRuntimePath() . '/imageLoad';
-            FileHelper::createDirectory($runtime);
+            FileHelper::createDirectory($runtime,777);
             $fileTemp = $runtime . '/' . uniqid();
             $file->saveAs($fileTemp);
-
+           
             $imageInfo = getimagesize($fileTemp);
-            if ($imageInfo && ($imageInfo[2] & $this->imagesTypes)) {
-                $class = $this->imagesModelClass;
+          
+            if ($imageInfo && ($imageInfo[2] & $this->images->imagesTypes)) {
+                $class =  $this->images->imagesModelClass;
                 $model = new $class();
-                $model['id'] = $this->generateId();
+                /* @var $model models\ImagesModel */
+                $model['id'] = $this->images->generateId();
                 $ext = $this->getExt($imageInfo[2]);
                 if ($ext === null) {
                     $ext = $file->getExtension();
@@ -45,11 +41,12 @@ class ActionLoad extends \yii\base\Action {
                 $model['type'] = $imageInfo[2];
                 $model['body'] = fopen($fileTemp, 'r');
                 if ($model->save()) {
+                    @unlink($fileTemp);
                     return $model['id'];
                 } else {
-                    throw new \yii\web\HttpException(500, 'изображение не загружено');
+                   @unlink($fileTemp);
+                    throw new \yii\web\HttpException(500, 'изображение не загружено '.  implode(',', $model->getFirstErrors()));
                 }
-                @unlink($fileTemp);
             }
 
             throw new \yii\web\HttpException(400, 'не правильный тип файла');
@@ -57,16 +54,7 @@ class ActionLoad extends \yii\base\Action {
         throw new \yii\web\HttpException(400);
     }
 
-    protected function generateId() {
-        $arr = ['a', 'b', 'c', 'd', 'e', 'f',
-            'g', 'h', 'i', 'j', 'k', 'l',
-            'm', 'n', 'o', 'p', 'r', 's',
-            't', 'u', 'v', 'x', 'y', 'z',
-            '1', '2', '3', '4', '5', '6',
-            '7', '8', '9', '0'];
-        $str = strtr(\Yii::$app->getSecurity()->generateRandomString(), '_-', $arr[rand(0, count($arr) - 1)] . $arr[rand(0, count($arr) - 1)]);
-        return $str;
-    }
+    
 
     protected function getExt($type) {
         switch ($type) {

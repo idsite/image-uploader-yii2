@@ -14,6 +14,8 @@ class Loader extends \yii\widgets\InputWidget {
     protected $behaviorModel;
 
     public function init() {
+        parent::init();
+
         if ($this->model) {
             foreach ($this->model->getBehaviors() as $behavior) {
                 if ($behavior instanceof UploadImagesBehavior) {
@@ -54,7 +56,8 @@ class Loader extends \yii\widgets\InputWidget {
                     'url' => $this->url,
                     'images' => $images,
                     'maxCount' => $maxCount,
-                    'fnGetUrlImages' => new \yii\web\JsExpression("function (id) {  return id==='loading'?'#':'/images-cache/' + id+'_{$this->size}'; }"),
+                    'name'=>$name,
+                    'fnGetUrlImages' => new \yii\web\JsExpression("function (id) {  return id==='loading'?'':'<img src=\"/images-cache/' + id+'_{$this->size}\">'  }"),
                 ]) . ")");
 
         echo $this->render($this->viewFile, ['name' => $name, 'images' => $images, 'label' => $label, 'size' => $this->size, 'id' => $id]);

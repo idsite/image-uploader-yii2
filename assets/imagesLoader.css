@@ -1,0 +1,39 @@
+.images-loader
+{
+
+}
+
+.images-loader .images-items
+{
+    overflow: hidden;
+
+}
+
+.images-loader .images-items .images-item
+{
+    width: 50px;
+    height: 50px;
+    margin: 0 5px 5px 0;
+    float: left;
+    position: relative;
+}
+
+.images-loader .images-items .images-item .images-item-delete
+{
+    position: absolute;
+    display: block;
+    width: 16px;
+    height: 16px;
+    top: 0;
+    right: 0;
+    background: url(close.png) no-repeat;
+}
+.images-loader .images-items .images-item.images-item-expected
+{
+    opacity: 0.6;
+}
+.images-loader .images-items .images-item.images-item-loading
+{
+    background: url(ajax-loader.gif) center center no-repeat transparent;
+}
+
