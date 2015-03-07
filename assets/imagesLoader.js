@@ -152,11 +152,11 @@
     {
         if (type === 'add')
         {
-            data.containInput.append('<input type="hidden" value="' + (_prefixAdd + id) + '" name="'+data.options.name+'[]" class="images-input-add" >');
+            data.containInput.append('<input type="hidden" value="' + (_prefixAdd + id) + '" name="' + data.options.name + '[]" class="images-input-add" >');
 
         } else
         {
-            data.containInput.append('<input type="hidden" value="' + (_prefixDelete + id) + '" name="'+data.options.name+'[]" class="images-input-delete" >');
+            data.containInput.append('<input type="hidden" value="' + (_prefixDelete + id) + '" name="' + data.options.name + '[]" class="images-input-delete" >');
         }
     }
 
@@ -171,7 +171,7 @@
                 fnGetUrlImages: function (id) {
                     return '/images-cache/' + id;
                 },
-                itemTemplate: '<div class="images-item" >{img}<a href="#" class="images-item-delete"></a></div>',
+                itemTemplate: '<div class="images-item" >{img}<a href="#" title="удалить" class="images-item-delete"></a></div>',
                 maxSizeFile: 52428800, //50 мб
                 uploadCount: 1 //одновременных загрузок
 
