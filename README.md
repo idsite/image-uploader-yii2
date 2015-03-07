@@ -115,5 +115,5 @@ CREATE INDEX idx_images_entity
 #icache
 RewriteCond %{REQUEST_URI} ^/images-cache/
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule .* icache/index?url=%{REQUEST_URI} [L]
+RewriteRule .* /icache/index?url=%{REQUEST_URI} [R=302,L]
 ```
