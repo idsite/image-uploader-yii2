@@ -210,11 +210,11 @@
                     {
                         if (options.images[i].substr(0, _prefixDelete.length) === _prefixDelete)
                         {
-                            imagesDelete.push(options.images[i].substr(_prefixDelete.length + 1));
+                            imagesDelete.push(options.images[i].substr(_prefixDelete.length));
 
                         } else if (options.images[i].substr(0, _prefixAdd.length) === _prefixAdd)
                         {
-                            imagesAdd.push(options.images[i].substr(_prefixAdd.length + 1));
+                            imagesAdd.push(options.images[i].substr(_prefixAdd.length));
                         } else
                         {
                             imagesOld.push(options.images[i]);
