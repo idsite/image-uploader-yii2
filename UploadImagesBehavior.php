@@ -117,6 +117,14 @@ class UploadImagesBehavior extends \yii\base\Behavior {
         return $class::find()->entity($this->entity, $this->owner->primaryKey)->selectWithoutBody();
     }
 
+    /**
+     * 
+     * @return \yii\db\ActiveQuery;
+     */
+    public function getImagesRel() {
+        return $this->owner->hasMany($this->images->imagesModelClass, ['entity_id' => 'id'])->where(['entity' => $this->entity])->select(['id', 'entity', 'entity_id', 'ext', 'type']);
+    }
+
     public function getCountImage() {
         if ($this->owner->isNewRecord) {
             return 0;

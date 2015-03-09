@@ -33,7 +33,7 @@ abstract class ImagesModel extends \yii\db\ActiveRecord {
     }
 
     public function getUrl($size = null) {
-        return \Yii::$app->getRequest()->baseUrl . '/' . $this->images->getIdWithFolders($this->id) . ($size ? '_' . $size : '') . '.' . $this->ext;
+        return $this->images->imagesCacheUrl . '/' . $this->images->getIdWithFolders($this->id) . ($size ? '_' . $size : '') . '.' . $this->ext;
     }
 
     public function rules() {
