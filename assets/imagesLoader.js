@@ -78,8 +78,22 @@
         xhr.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + boundary);
         xhr.setRequestHeader("Cache-Control", "no-cache");
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+
         // Формируем тело запроса
         var body = "--" + boundary + "\r\n";
+
+        var csrfParam = $("meta[name='csrf-param']");
+        if (csrfParam.length)
+        {
+            body += "Content-Disposition: form-data; name='" + csrfParam.attr('content') + "'"+"\r\n\r\n";
+
+            body += $("meta[name='csrf-token']").attr('content') + "\r\n";
+            body += "--" + boundary  + "\r\n";
+        }
+
+
+
         body += "Content-Disposition: form-data; name='file'; filename='file'\r\n";
         body += "Content-Type: " + file.type + "\r\n\r\n";
         body += reader.result + "\r\n";
